@@ -52,6 +52,31 @@
         filter: hue-rotate(360deg);
       }
     }
+
+    .text {
+      position: absolute;
+      color: rgb(0, 255, 13);
+      font-size: 3vmin;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 3px;
+      z-index: 10;
+      white-space: nowrap;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: rgb(0, 255, 13);
+      margin-left: 2px;
+      vertical-align: middle;
+      animation: blink 0.7s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -76,6 +101,46 @@
     <div class="circle" style="--i:18;"></div>
     <div class="circle" style="--i:19;"></div>
     <div class="circle" style="--i:20;"></div>
+    <p class="text"><span id="typed"></span><span class="cursor"></span></p>
   </div>
+
+  <script>
+    const text = "Hi, I'm Salman — Developer & AI Enthusiast";
+    const typed = document.getElementById('typed');
+    let i = 0;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playTypingSound() {
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(600 + Math.random() * 200, audioCtx.currentTime);
+      gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+      oscillator.start(audioCtx.currentTime);
+      oscillator.stop(audioCtx.currentTime + 0.05);
+    }
+
+    function typeWriter() {
+      if (i < text.length) {
+        typed.textContent += text.charAt(i);
+        playTypingSound();
+        i++;
+        setTimeout(typeWriter, 100);
+      }
+    }
+
+    document.addEventListener('click', function startOnClick() {
+      if (i === 0) typeWriter();
+      document.removeEventListener('click', startOnClick);
+    });
+
+    setTimeout(() => {
+      if (i === 0) typeWriter();
+    }, 1000);
+  </script>
 </body>
 </html>
